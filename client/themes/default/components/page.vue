@@ -634,13 +634,45 @@ export default {
       }
     }
 
-    // -> Handle anchor links within the page contents
     this.$nextTick(() => {
+      // -> Handle anchor links within the page contents
       this.$refs.container.querySelectorAll(`a[href^="#"], a[href^="${window.location.href.replace(window.location.hash, '')}#"]`).forEach(el => {
         el.onclick = ev => {
           ev.preventDefault()
           ev.stopPropagation()
           this.$vuetify.goTo(decodeURIComponent(ev.currentTarget.hash), this.scrollOpts)
+        }
+      })
+
+      // -> Format timestamps in local time
+      const regex = /<t:(\d+):([a-zA-Z])>/;
+      this.$refs.container.querySelectorAll('code.timeformat').forEach(el => {
+        const match = el.textContent.match(regex)
+        if (!match) return console.error('Invalid timestamp format:', el.textContent)
+        const timestamp = parseInt(match[1]) * 1000 // Convert to milliseconds
+        const formatType = match[2]
+        const date = new Date(timestamp)
+
+        const formatDate = options => new Intl.DateTimeFormat(this.locale, options).format(date)
+        switch (formatType) {
+          case 'd': return el.textContent = formatDate({ year: 'numeric', month: '2-digit', year: '2-digit' })
+          case 'D': return el.textContent = formatDate({ year: 'numeric', month: 'long', day: 'numeric' })
+          case 't': return el.textContent = formatDate({ hour: 'numeric', minute: 'numeric' })
+          case 'T': return el.textContent = formatDate({ hour: 'numeric', minute: 'numeric', second: 'numeric' })
+          case 'f': return el.textContent = formatDate({ year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' })
+          case 'F': return el.textContent = formatDate({ weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' })
+          case 'R':
+            const now = Date.now()
+            const diffInSeconds = (timestamp - now) / 1000
+            const rtf = new Intl.RelativeTimeFormat(this.locale, { numeric: 'auto' })
+            if (Math.abs(diffInSeconds) < 60) return el.textContent = rtf.format(Math.round(diffInSeconds), 'second')
+            if (Math.abs(diffInSeconds) < 3600) return el.textContent = rtf.format(Math.round(diffInSeconds / 60), 'minute')
+            if (Math.abs(diffInSeconds) < 86400) return el.textContent = rtf.format(Math.round(diffInSeconds / 3600), 'hour')
+            if (Math.abs(diffInSeconds) < 604800) return el.textContent = rtf.format(Math.round(diffInSeconds / 86400), 'day')
+            if (Math.abs(diffInSeconds) < 2.628e+6) return el.textContent = rtf.format(Math.round(diffInSeconds / 604800), 'week')
+            if (Math.abs(diffInSeconds) < 3.154e+7) return el.textContent = rtf.format(Math.round(diffInSeconds / 2.628e+6), 'month')
+            return el.textContent = rtf.format(Math.round(diffInSeconds / 3.154e+7), 'year')
+          default: return console.error('Invalid timestamp format:', el.textContent)
         }
       })
 
