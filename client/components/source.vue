@@ -36,7 +36,7 @@ export default {
     },
     locale: {
       type: String,
-      default: 'en'
+      default: ''
     },
     path: {
       type: String,
@@ -71,10 +71,16 @@ export default {
   },
   methods: {
     goLive() {
-      window.location.assign(`/${this.locale}/${this.path}`)
+      if (this.locale == '')
+        window.location.assign(`/${this.path}`)
+      else
+        window.location.assign(`/${this.locale}/${this.path}`)
     },
     goHistory () {
-      window.location.assign(`/h/${this.locale}/${this.path}`)
+      if (this.locale == '')
+        window.location.assign(`/h/${this.path}`)
+      else
+        window.location.assign(`/h/${this.locale}/${this.path}`)
     }
   }
 }

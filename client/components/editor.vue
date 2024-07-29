@@ -91,7 +91,7 @@ export default {
   props: {
     locale: {
       type: String,
-      default: 'en'
+      default: ''
     },
     path: {
       type: String,
@@ -365,7 +365,10 @@ export default {
             this.$store.set('editor/id', _.get(resp, 'page.id'))
             this.$store.set('editor/mode', 'update')
             this.exitConfirmed = true
-            window.location.assign(`/${this.$store.get('page/locale')}/${this.$store.get('page/path')}`)
+            if (this.$store.get('page/locale') == '') 
+              window.location.assign(`/${this.$store.get('page/path')}`)
+            else
+              window.location.assign(`/${this.$store.get('page/locale')}/${this.$store.get('page/path')}`)
           } else {
             throw new Error(_.get(resp, 'responseResult.message'))
           }
@@ -469,7 +472,10 @@ export default {
             })
             if (this.locale !== this.$store.get('page/locale') || this.path !== this.$store.get('page/path')) {
               _.delay(() => {
-                window.location.replace(`/e/${this.$store.get('page/locale')}/${this.$store.get('page/path')}`)
+                if (this.$store.get('page/locale') == '')
+                  window.location.replace(`/e/${this.$store.get('page/path')}`)
+                else
+                  window.location.replace(`/e/${this.$store.get('page/locale')}/${this.$store.get('page/path')}`)
               }, 1000)
             }
           } else {
@@ -523,7 +529,10 @@ export default {
         if (this.$store.get('editor/mode') === 'create') {
           window.location.assign(`/`)
         } else {
-          window.location.assign(`/${this.$store.get('page/locale')}/${this.$store.get('page/path')}`)
+          if (this.$store.get('page/locale') == '')
+            window.location.assign(`/${this.$store.get('page/path')}`)
+          else
+            window.location.assign(`/${this.$store.get('page/locale')}/${this.$store.get('page/path')}`)
         }
       }, 500)
     },
