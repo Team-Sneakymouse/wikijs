@@ -41,6 +41,3 @@ jobs:
           registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Trigger Watchtower
-        run: |
-          curl -L -I -H "Authorization: Bearer ${{ secrets.WATCHTOWER_TOKEN }}" "${{ secrets.WATCHTOWER_URL }}"
